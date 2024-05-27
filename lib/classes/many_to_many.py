@@ -39,8 +39,8 @@ class Author:
         return self._name
 
     @name.setter
-    def name(self,value):
-        raise ValueError("Cannot change authors name")
+    def name(self, value):
+        raise ValueError("Cannot change author's name")
 
 
     def articles(self):
@@ -54,9 +54,9 @@ class Author:
         return Article(self, magazine, title)
 
     def topic_areas(self):
-       categories = {article.magazine.category for article in Article.all if article.author == self}
-       return list(categories) if categories else None
-    
+        categories = {article.magazine.category for article in Article.all if article.author == self}
+        return list(categories) if categories else None
+
 class Magazine:
     def __init__(self, name, category):
         if not isinstance(name, str):
@@ -80,26 +80,13 @@ class Magazine:
     def article_titles(self):
         titles = [article.title for article in Article.all if article.magazine == self]
         return titles or None
+
     def contributing_authors(self):
         author_article_count = {}
+        #iterate through each article to count articles per author
         for article in self.articles():
             author_name = article.author.name
             author_article_count[author_name] = author_article_count.get(author_name, 0) + 1
+            #Return authors who have written more than two articles 
         return [author for author in set(article.author for article in self.articles()) 
                 if author_article_count.get(author.name, 0) > 2]
-
-
-
-
-
-# author = Author("Carry Bradshaw")
-# magazine = Magazine("Vogue", "Fashion")
-# article = Article(author, magazine, "How to wear a tutu with style")
-# article = Article(author, magazine, "Javascript classes")
-# print(author.name)
-# author.articles()
-# author.add_article(magazine, "title")
-# print(author.add_article(magazine, "title"))
-# print(author.articles())
-# print(author.topic_areas())
-# print(magazine.contributing_authors())   
