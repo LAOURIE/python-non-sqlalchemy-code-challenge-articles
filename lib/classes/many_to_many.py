@@ -1,92 +1,101 @@
 class Article:
     all = []
-
     def __init__(self, author, magazine, title):
         self.author = author
         self.magazine = magazine
-        self._title = title  # Use the private attribute to allow setting the title initially
+        self.title = title
         Article.all.append(self)
 
     @property
     def title(self):
         return self._title
-
+        
     @title.setter
-    def title(self, value):
-        raise AttributeError("Cannot set attribute 'title'")
-
-    
-
-    
-
-    
-    
+    def title(self,value):  
+        if isinstance(value,str) and (hasattr(self,'title')==False):
+            self._title = value
+            
+                
 
 class Author:
     def __init__(self, name):
-        if not isinstance(name, str):
-            raise ValueError("Name must be a string")
-        if len(name) == 0:
-            raise ValueError("Name must have more than 0 characters")
-        
-        self._name = name
-        self._articles = []
-        self._magazines = []
-        
+        self.name = name
     
+    @property
+    def name(self):
+        return self._name
+    
+    @name.setter
+    def name(self,value):
+        if isinstance(value,str) and (hasattr(self,'name')==False):
+            self._name = value
+
+    def articles(self):
+        return [article for article in Article.all if article.author == self]
+
+    def magazines(self):
+        magz = set([article.magazine for article in self.articles()])
+        return list(magz)
+
+    def add_article(self, magazine, title):
+        return Article(self,magazine,title)
+
+    def topic_areas(self):
+        topics = set([article.magazine.category for article in self.articles()]) 
+        if len(topics) == 0:
+            return None
+        else:
+            return list(topics)
+
+class Magazine:
+
+    def __init__(self, name, category):
+        self.name = name
+        self.category = category
+     
     @property
     def name(self):
         return self._name
 
     @name.setter
-    def name(self, value):
-        raise ValueError("Cannot change author's name")
+    def name(self,value):
+        if isinstance(value,str) and 2<=len(value)<=16:
+            self._name = value
 
-
-    def articles(self):
-        return [article for article in Article.all if article.author == self]
-        
-
-    def magazines(self):
-        return list(set(article.magazine for article in Article.all if article.author == self))
-
-    def add_article(self, magazine, title):
-        return Article(self, magazine, title)
-
-    def topic_areas(self):
-        categories = {article.magazine.category for article in Article.all if article.author == self}
-        return list(categories) if categories else None
-
-class Magazine:
-    def __init__(self, name, category):
-        if not isinstance(name, str):
-            raise ValueError("Name must be a string")
-        if not isinstance(category, str):
-            raise ValueError("Category must be a string")
-        if not 2 <= len(name) <= 16:
-            raise ValueError("Name must be between 2 and 16 characters long")
-        if not category:
-            raise ValueError("Category cannot be empty")
-        
-        self.name = name
-        self.category = category
+    @property
+    def category(self):
+        return self._category
+    
+    @category.setter
+    def category(self,value):
+        if isinstance(value,str) and len(value)>0:
+            self._category = value
 
     def articles(self):
         return [article for article in Article.all if article.magazine == self]
+        
 
     def contributors(self):
-        return list(set(article.author for article in Article.all if article.magazine == self))
+        return list(set([article.author for article in self.articles()]))
+    
 
     def article_titles(self):
-        titles = [article.title for article in Article.all if article.magazine == self]
-        return titles or None
+        titles = [article.title for article in self.articles()]
+        if len(titles)>0:
+            return titles
+        else:
+            return None
+        
 
     def contributing_authors(self):
-        author_article_count = {}
-        #iterate through each article to count articles per author
-        for article in self.articles():
-            author_name = article.author.name
-            author_article_count[author_name] = author_article_count.get(author_name, 0) + 1
-            #Return authors who have written more than two articles 
-        return [author for author in set(article.author for article in self.articles()) 
-                if author_article_count.get(author.name, 0) > 2]
+        contrAuth = {article.author for article in self.articles()}
+        moreThanTwo = [author for author in contrAuth if sum(1 for art in self.articles() if art.author == author) > 2]
+        if (len(moreThanTwo)>0):
+            return moreThanTwo
+        else:
+            return None
+        
+
+
+
+       
